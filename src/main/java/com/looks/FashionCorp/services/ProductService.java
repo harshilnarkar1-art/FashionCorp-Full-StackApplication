@@ -1,23 +1,20 @@
-package com.looks.FashionCorp.services;
+package com.looks.FashionCorp.Services;
 
 import java.util.List;
 
-import com.looks.FashionCorp.dtos.ProductDto;
+import com.looks.FashionCorp.Dtos.ProductDto;
+import com.looks.FashionCorp.exceptions.ProductNotFoundException;
 
 public interface ProductService {
-	
-	//create
+
 	ProductDto addProduct(ProductDto productDto);
 	
-	//read
-	ProductDto getProduct(int id);
+	ProductDto getProduct(Integer id) throws ProductNotFoundException;
 	
-	//update
-	ProductDto updateProduct(ProductDto productDto, int id);
-	
-	//delete
-	void deleteProduct(int id);
-	
-	//read all products
 	List<ProductDto> getAllProducts();
+	
+	ProductDto updateProduct(ProductDto productDto, Integer id);
+	
+	void deleteProduct(Integer id);
+	
 }

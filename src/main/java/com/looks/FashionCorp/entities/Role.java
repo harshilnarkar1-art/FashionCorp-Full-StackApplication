@@ -1,10 +1,9 @@
-package com.looks.FashionCorp.entites;
+package com.looks.FashionCorp.entities;
 
 import java.util.HashSet;
 import java.util.Set;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.looks.FashionCorp.enums.AppRole;
+import com.looks.FashionCorp.Enums.AppRole;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -15,21 +14,26 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Table(name = "roles")
 public class Role {
 	
 	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	private int roleId;
-	
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	private long id;
+		
 	@Enumerated(EnumType.STRING)
-	@Column(unique = true, nullable = false)
+	@Column(nullable = false, unique = true)
 	private AppRole appRole;
 	
 	@ManyToMany(mappedBy = "roles")
-	@JsonBackReference
 	private Set<User> users = new HashSet<User>();
 
 }

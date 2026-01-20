@@ -1,53 +1,88 @@
-package com.looks.FashionCorp.services.impl;
+package com.looks.FashionCorp.Services.Impl;
+
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import com.looks.FashionCorp.dtos.UserDto;
-import com.looks.FashionCorp.entites.User;
-import com.looks.FashionCorp.repositories.UserRepository;
-import com.looks.FashionCorp.services.UserService;
+import com.looks.FashionCorp.Dtos.UserDto;
+import com.looks.FashionCorp.Repository.UserRepository;
+import com.looks.FashionCorp.Services.UserService;
+import com.looks.FashionCorp.entities.User;
+import com.looks.FashionCorp.exceptions.PasswordMismatchException;
+import com.looks.FashionCorp.exceptions.UserNotFoundException;
 
 import jakarta.transaction.Transactional;
 
 @Service
-@Transactional
-public class UserServiceImpl implements UserService {
+public class UserServiceImpl implements UserService{
 	
 	@Autowired
 	private ModelMapper modelMapper;
 	
 	@Autowired
-	private UserRepository userRepository;
-
-	@Override
-	public UserDto createUser(UserDto userDto) {
-		User user = modelMapper.map(userDto, User.class);
-		User savedUser = userRepository.save(user);
-		return modelMapper.map(savedUser, UserDto.class);
-	}
+	private UserRepository userRepositories;
 	
+	@Autowired
+	private PasswordEncoder passwordEncoder;
+
 	@Override
-	public UserDto getUser(int user_id) {
-		User user = userRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Id Not Found"));
-		return modelMapper.map(user, UserDto.class);
+	@Transactional
+	public UserDto register(UserDto userDto) throws PasswordMismatchException {
+		
+		if(!userDto.getPassword().equals(userDto.getConfirmPassword())) {
+			throw new PasswordMismatchException("Password and Confirm Pass does Not Match");
+		}
+		
+		User user = modelMapper.map(userDto, User.class);
+		user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+		
+		User savedUser = userRepositories.save(user);
+		UserDto dto = modelMapper.map(savedUser, UserDto.class);
+		dto.setPassword(null);
+		return dto;
 	}
 
 	@Override
-	public UserDto updateUser(UserDto userDto, int user_id) {
-		User user = userRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Id Not Found"));
+	public UserDto getUserById(String id) {
+		User user = userRepositories.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
+		UserDto dto = modelMapper.map(user, UserDto.class);
+		dto.setPassword(null);
+		return dto;
+	}
+
+	@Override
+	public List<UserDto> getAllUsers() {
+		List<UserDto> list = userRepositories.findAll().stream().map(user -> modelMapper.map(user, UserDto.class)).collect(Collectors.toList());
+		return list;
+		
+	}
+
+	@Override
+	public UserDto updateUser(UserDto userDto, String id) {
+		User user = userRepositories.findById(id).orElseThrow(() -> new UserNotFoundException("User Not Found"));
 		user.setName(userDto.getName());
 		user.setEmail(userDto.getEmail());
-		User savedUser = userRepository.save(user);
-		return modelMapper.map(savedUser, UserDto.class);
+		
+		if(userDto.getPassword() != null && !userDto.getPassword().isBlank()) {
+			user.setPassword(passwordEncoder.encode(userDto.getPassword()));
+		}
+		
+		userRepositories.save(user);
+		UserDto dto = modelMapper.map(user, UserDto.class);
+		dto.setPassword(null);
+		return dto;
 	}
 
 	@Override
-	public void deleteUser(int user_id) {
-		User user = userRepository.findById(user_id).orElseThrow(() -> new RuntimeException("Id Not Found"));
-		userRepository.delete(user);
-		
+	public void deleteUser(String id) {
+		if(!userRepositories.existsById(id)) {
+			throw new UserNotFoundException("User Not Found");
+		}
+		userRepositories.deleteById(id);		
 	}
 
 }

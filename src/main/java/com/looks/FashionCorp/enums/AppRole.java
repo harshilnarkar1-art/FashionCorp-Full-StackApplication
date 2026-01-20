@@ -1,5 +1,4 @@
-package com.looks.FashionCorp.enums;
-
+package com.looks.FashionCorp.Enums;
 
 public enum AppRole {
 	

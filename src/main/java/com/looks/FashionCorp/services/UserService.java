@@ -1,20 +1,20 @@
-package com.looks.FashionCorp.services;
+package com.looks.FashionCorp.Services;
 
-import com.looks.FashionCorp.dtos.UserDto;
-import com.looks.FashionCorp.entites.User;
+import java.util.List;
+
+import com.looks.FashionCorp.Dtos.UserDto;
+import com.looks.FashionCorp.exceptions.PasswordMismatchException;
 
 public interface UserService {
 	
-	// Create 
-	UserDto createUser(UserDto userDto);
+	UserDto register(UserDto userDto) throws PasswordMismatchException;
 	
-	// Read
-	UserDto getUser(int user_id);
+	UserDto getUserById(String id);
 	
-	// Update
-	UserDto updateUser(UserDto userDto, int user_id);
+	List<UserDto> getAllUsers();
 	
-	// Delete
-	void deleteUser(int user_id);
+	UserDto updateUser(UserDto userDto, String id);
+	
+	void deleteUser(String id);
 
 }

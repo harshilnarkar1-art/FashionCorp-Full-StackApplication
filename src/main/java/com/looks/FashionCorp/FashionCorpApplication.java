@@ -12,7 +12,6 @@ public class FashionCorpApplication {
 		SpringApplication.run(FashionCorpApplication.class, args);
 	}
 	
-	//ModelMapper
 	@Bean
 	public ModelMapper modelMapper() {
 		return new ModelMapper();
